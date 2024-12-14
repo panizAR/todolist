@@ -43,6 +43,9 @@ function createTodo(todos) {
           <span class="todo__createdAt">${new Date(
             todo.createAt
           ).toLocaleDateString("fa-ir")}</span>
+          <button class="todo__edit" data-todo-id=${
+            todo.id
+          }><i class="far fa-edit"></i></button>
           <button class="todo__check" data-todo-id=${
             todo.id
           }><i class="far fa-check-square"></i></button>
@@ -62,6 +65,10 @@ function createTodo(todos) {
   // ? check item
   const checkBtns = [...document.querySelectorAll(".todo__check")];
   checkBtns.forEach((btn) => btn.addEventListener("click", checkTodo));
+
+  // ? edit item
+  const editBtns = [...document.querySelectorAll(".todo__edit")];
+  editBtns.forEach((btn) => btn.addEventListener("click", editTodo));
 }
 
 // *  filter status
@@ -134,4 +141,42 @@ function saveTodo(todo) {
 
 function saveAllTodos(todos) {
   localStorage.setItem("todos", JSON.stringify(todos));
+}
+
+//* fun edit
+const closeModalBtns = document.querySelectorAll(".close-modal");
+const backdrop = document.querySelector(".backdrop");
+const modal = document.querySelector(".modal");
+const editTodoInput = document.querySelector("#edit-todo");
+
+function openModal() {
+  backdrop.classList.remove("hidden");
+}
+
+function closeModal() {
+  backdrop.classList.add("hidden");
+}
+
+// openModalBtn.addEventListener("click", openModal);
+closeModalBtns.forEach((btn) => btn.addEventListener("click", closeModal));
+backdrop.addEventListener("click", closeModal);
+modal.addEventListener("click", (e) => e.stopPropagation());
+
+function editTodo(e) {
+  openModal();
+
+  let todos = getAllTodos();
+  const todoIds = Number(e.target.dataset.todoId);
+  const todo = todos.find((t) => t.id === todoIds);
+  editTodoInput.value = todo.title;
+
+  const confirmEditBtn = document.querySelector(".accept-btn");
+  confirmEditBtn.addEventListener("click", () => {
+    const newTitle = editTodoInput.value;
+    todo.title = newTitle;
+
+    saveAllTodos(todos);
+    filterTodos();
+    closeModal(); // بستن مودال
+  });
 }
